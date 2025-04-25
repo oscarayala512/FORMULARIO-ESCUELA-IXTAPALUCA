@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitud para Escuelas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script>
+        function toggleSecciones() {
+            const tipo = document.getElementById('tipoSolicitud').value;
+            document.getElementById('seccionPoda').style.display = 'none';
+            document.getElementById('seccionDerribo').style.display = 'none';
+            document.getElementById('seccionTrasplante').style.display = 'none';
+
+            if (tipo === 'poda') document.getElementById('seccionPoda').style.display = 'block';
+            else if (tipo === 'derribo') document.getElementById('seccionDerribo').style.display = 'block';
+            else if (tipo === 'trasplante') document.getElementById('seccionTrasplante').style.display = 'block';
+        }
+
+        function verificarLongitudNombre() {
+            const nombre = document.getElementById('name').value;
+            if (nombre.length < 3) {
+                alert("El nombre completo debe tener al menos 3 caracteres.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <form action="procesar_formulario.php" method="POST" enctype="multipart/form-data">
+        <img src="https://github.com/oscarayala512/Formulario_arbolado/blob/main/img/logoixtapaluca.jpg?raw=true" alt="Logotipo" width="50%" height="200px">
+
+        <h2>Datos de la Escuela</h2>
+        <div class="input-group">
+            <label for="nombreEscuela">Nombre de la Escuela:</label>
+            <input type="text" name="nombreEscuela" id="nombreEscuela" required>
+
+            <label for="nivel">Nivel Educativo:</label>
+            <select name="nivel" id="nivel" required>
+                <option value="">Seleccione...</option>
+                <option value="preescolar">Preescolar</option>
+                <option value="primaria">Primaria</option>
+                <option value="secundaria">Secundaria</option>
+                <option value="media_superior">Media Superior</option>
+                <option value="superior">Superior</option>
+            </select>
+
+            <label for="turno">Turno:</label>
+            <select name="turno" id="turno" required>
+                <option value="">Seleccione...</option>
+                <option value="matutino">Matutino</option>
+                <option value="vespertino">Vespertino</option>
+                <option value="mixto">Mixto</option>
+            </select>
+
+            <label for="name">Nombre del Responsable:</label>
+            <input type="text" name="name" id="name" required onblur="verificarLongitudNombre()">
+
+            <label for="phone">Número de Teléfono:</label>
+            <input type="tel" name="phone" id="phone" pattern="[0-9]{10}" required>
+
+            <label for="email">Correo Electrónico Institucional:</label>
+            <input type="email" name="email" id="email" required>
+        </div>
+
+        <h2>Ubicación de la Escuela</h2>
+        <label for="direccionArbol">Dirección Exacta:</label>
+        <input type="text" id="direccionArbol" name="direccionArbol" required>
+
+        <h3>Seleccione la ubicación en el mapa:</h3>
+        <div id="map" style="height: 200px; width: 100%; border: 1px solid #ae5c5c;"></div>
+
+        <input type="hidden" name="latitud" id="latitud">
+        <input type="hidden" name="longitud" id="longitud">
+
+        <h2>Tipo de Solicitud</h2>
+        <label for="tipoSolicitud">Seleccione el tipo de servicio solicitado:</label>
+        <select id="tipoSolicitud" name="tipoSolicitud" required onchange="toggleSecciones()">
+            <option value="">Seleccione...</option>
+            <option value="poda">Poda</option>
+            <option value="derribo">Derribo</option>
+            <option value="trasplante">Trasplante</option>
+        </select>
+
+        <!-- Sección Poda -->
+        <div id="seccionPoda" style="display: none;">
+            <h3>Detalles de la Poda</h3>
+            <label for="alturaAproximada">Altura aproximada del árbol:</label>
+            <select id="alturaAproximada" name="alturaAproximada">
+                <option value="">Seleccione...</option>
+                <option value="menor1">Menos de 1 metro</option>
+                <option value="1-2">Entre 1 y 2 metros</option>
+                <option value="2-2.5">Entre 2 y 2.5 metros</option>
+            </select>
+
+            <label>Tipo de poda:</label><br>
+            <input type="checkbox" name="poda[]" value="formacion"> Formación<br>
+            <input type="checkbox" name="poda[]" value="mantenimiento"> Mantenimiento<br>
+            <input type="checkbox" name="poda[]" value="seguridad"> Seguridad<br>
+        </div>
+
+        <!-- Sección Derribo -->
+        <div id="seccionDerribo" style="display: none;">
+            <h3>Motivo del Derribo</h3>
+            <label for="razonDerribo">Explique la razón:</label>
+            <textarea id="razonDerribo" name="razonDerribo"></textarea>
+
+            <label>¿Presenta alguna de estas características?</label><br>
+            <input type="checkbox" name="caracteristicas[]" value="daño"> Daño estructural<br>
+            <input type="checkbox" name="caracteristicas[]" value="caida"> Riesgo de caída<br>
+            <input type="checkbox" name="caracteristicas[]" value="enfermedad"> Enfermedad grave<br>
+        </div>
+
+        <!-- Sección Trasplante -->
+        <div id="seccionTrasplante" style="display: none;">
+            <h3>Motivo del Trasplante</h3>
+            <label for="razonTrasplante">Explique la razón:</label>
+            <textarea id="razonTrasplante" name="razonTrasplante"></textarea>
+        </div>
+
+        <h2>Evaluación de Riesgo</h2>
+        <label>¿El árbol representa algún riesgo para la comunidad escolar?</label><br>
+        <input type="radio" name="riesgo" value="si" required> Sí
+        <input type="radio" name="riesgo" value="no" required> No
+
+        <label for="detalleRiesgo">Explique brevemente:</label>
+        <textarea id="detalleRiesgo" name="detalleRiesgo"></textarea>
+
+        <h2>Fotografías o Videos</h2>
+        <label>¿Cuenta con evidencia visual?</label><br>
+        <input type="radio" name="fotos" value="si" required> Sí
+        <input type="radio" name="fotos" value="no"> No
+
+        <label for="archivo">Suba sus archivos:</label>
+        <input type="file" id="archivo" name="archivo[]" multiple>
+
+        <h2>Consentimiento</h2>
+        <input type="checkbox" name="declaracion" required> Declaro que los datos proporcionados son verídicos.<br>
+        <input type="checkbox" name="autorizacion" required> Autorizo el ingreso al plantel para realizar la inspección.<br>
+
+        <br><input type="submit" value="Enviar Solicitud" class="btn">
+    </form>
+
+    <!-- Leaflet y Geocoder -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var map = L.map('map').setView([19.43, -99.13], 13);
+            var marker;
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            var geocoder = L.Control.Geocoder.nominatim();
+
+            function actualizarCoordenadas(latlng) {
+                document.getElementById('latitud').value = latlng.lat;
+                document.getElementById('longitud').value = latlng.lng;
+            }
+
+            function geocodeDireccion(direccion) {
+                geocoder.geocode(direccion, function(results) {
+                    if (results.length > 0) {
+                        var latlng = results[0].center;
+                        if (marker) {
+                            marker.setLatLng(latlng);
+                        } else {
+                            marker = L.marker(latlng).addTo(map);
+                        }
+                        map.setView(latlng, 13);
+                        actualizarCoordenadas(latlng);
+                    } else {
+                        alert("No se pudo encontrar la dirección.");
+                    }
+                });
+            }
+
+            document.getElementById('direccionArbol').addEventListener('blur', function() {
+                var direccion = this.value;
+                if (direccion) {
+                    geocodeDireccion(direccion);
+                }
+            });
+
+            map.on('click', function (e) {
+                if (marker) {
+                    marker.setLatLng(e.latlng);
+                } else {
+                    marker = L.marker(e.latlng).addTo(map);
+                }
+                actualizarCoordenadas(e.latlng);
+            });
+        });
+    </script>
+</body>
+</html>
